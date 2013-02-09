@@ -1,0 +1,73 @@
+@import url(http://fonts.googleapis.com/css?family=Droid+Serif:400,400italic,700);
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans:400,700);
+
+html, body, #map_canvas {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+div#about {
+	background-color: rgba(255,255,255,0.9);
+	height: 100%;
+	width: 25%;
+	min-width: 400px;
+	position: absolute;
+	top: 0;
+	left: 90px;
+	z-index: 5;
+	box-shadow: 0px 0px 5px 1px #aaa;
+}
+
+div#content {
+	padding: 20px;
+}
+
+div#about h1 {
+	font-family: 'Droid Serif', serif;
+	margin: 5px 0 15px 0;
+	padding: 0;
+	font-size: 23px;
+	line-height: 1.5em;
+	text-align: right;
+}
+
+div#about h2 {
+	font-family: 'Droid Serif', serif;
+	margin: 25px 0 -10px; 0;
+	padding: 0;
+	font-size: 18px;
+}
+
+div#about p, div#about ul, div#infoContent {
+	font-family: 'Droid Sans', sans-serif;
+	font-size: 14px;
+	line-height: 1.5em;
+}
+
+div#about p i {
+	font-family: 'Droid Serif', serif;
+	font-size: 14px;
+	line-height: 1.5em;
+	font-style: italic;
+}
+
+div#about ul {
+	margin: 0;
+	padding: 0;
+	padding-left: 20px;
+}
+
+span#footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	z-index: 10;
+	width: 100%;
+	text-align: center;
+}
+
+div#infoContent {
+	/* more to follow */
+}

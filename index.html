@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ISS-Location-Weather-Mashup</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css" type="text/css" media="all" />
+	<script src="http://code.jquery.com/jquery-latest.js"></script>        
+    <script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script>
+	  var useGermanTime = true; //set true if you want to use German time and not GMT (ZULU) time
+	  var divCount; //ensure unique div IDs
+	  var divWeatherCount;
+	  var map;
+	  
+      function initialize() {
+	  divCount = 0; //set ID to 0 on pageLoad
+	  divWeatherCount = 0; 
+	  var myOptions = {
+          zoom: 7,
+          center: new google.maps.LatLng(49.397, 9.644),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        map = new google.maps.Map(document.getElementById('map_canvas'),
+            myOptions);
+			
+		//for rightClick get coordinates
+		google.maps.event.addListener(map, "rightclick", function(event) {
+			var lat = event.latLng.lat();
+			var lng = event.latLng.lng();
+			
+			var myLatlng = new google.maps.LatLng(lat,lng);
+			var issPrediction = '<div id="infoContent"><strong>24-Stundenvorhersage</strong><br /><br /><strong>Breitengrad:</strong> '
+			+lat.toString().substring(0,9)+ " <br/><strong>Längengrad:</strong> " +lng.toString().substring(0,9) 
+			+ '<br/><strong>Wetter:</strong> <span id="weather'+(++divWeatherCount)+'"></span><br /><br />Die ISS kann zu folgenden Uhrzeiten beobachtet werden:' + '<br /><br /><div id="times'+ (++divCount) 
+			+'" style="min-height:240px;display:block;"></div></div>';
+			
+			showSpaceStationTimes(lat,lng); //allocate ISS Times to DIVs
+			showWeather(lat,lng);
+			
+			var infowindow = new google.maps.InfoWindow({
+				content: issPrediction,
+				maxWidth: 250 //width of the ISS infoWindow
+			});
+			
+			infowindow.setPosition(myLatlng); //set position of the infoWindow
+			infowindow.open(map);	
+		
+		});
+	  }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    
+	
+	function showSpaceStationTimes(p_lat, p_lng)
+	{
+		$.getJSON('issService.php?spacestationpasses&lat='+p_lat+'&lng='+p_lng,
+			function(data) 
+			{
+				//alert(JSON.stringify(data));
+				$.each(data.results,function(i)
+				{
+					//alert(data.results[i].start.time);
+					$("#times"+divCount).append(toTimeString(data.results[i].start.time)+'</br>');
+				});
+			});
+	}
+	
+	function showWeather(p_lat, p_lng)
+	{
+		$.getJSON('issService.php?weather&lat='+p_lat+'&lng='+p_lng,
+			function(weatherData) 
+			{
+				$("#weather"+divWeatherCount).append(weatherData.weather);	
+			});
+	}
+	
+	
+	function toTimeString(sek)
+	{	
+		sek*=1000; //we need ms to initialize the Date instance
+		var now = new Date();
+		var diff = now.getTimezoneOffset();
+		if(useGermanTime)
+		{		
+			diff*=-60000; //reverse the algebraic sign to add it to the Zulu time and mulitply by 60000 to get ms (min given from getTimezoneOffset)
+			var predictTime = new Date(sek+diff);
+			return predictTime.toGMTString().substring(0,predictTime.toGMTString().length-3)+" (GER).";
+		}else
+		{
+			var predictTime = new Date(sek);
+			return predictTime.toGMTString();
+		}
+	}
+	
+	</script>
+  </head>
+  <body>
+    <div id="about">
+    	<div id="content">
+		    <h1>ISS-Location-Weather-Mashup (ILWM)</h1>
+		    
+		    <p>In unserem <strong>ISS-Location-Weather-Mashup</strong> soll die Sichtbarkeit der <a href="http://de.wikipedia.org/wiki/Internationale_Raumstation" target="_blank">Internationalen Raumstation ISS</a> für einen bestimmten Ort – unter Berücksichtigung der lokalen Wetterverhältnisse – auf einer Karte dargestellt werden.</p>
+		    <p><strong>Anleitung:</strong> Mit einem Rechtsklick auf die Karte erscheint ein <i>InfoWindow</i> mit folgenden Informationen:</p>
+		    <ul>
+		    	<li>Geografische Längen- und Breitenangabe des angeklickten Ortes</li>
+		    	<li>Wettervorhersage des ausgewählten Ortes</li>
+		    	<li>Uhrzeit zu der man die ISS sehen kann</li>
+		    </ul>
+		    
+		    <h2>Genutzte APIs</h2>
+		    
+		    <p>Bei der Umsetzung werden APIs und Dienste verschiedener Anbieter genutzt, um an die benötigten Daten und Funktionen zu gelangen:</p>
+		    <ul>
+		    	<li><a href="https://developers.google.com/maps/?hl=de" target="_blank">Google Maps</a></li>
+		    	<li><a href="http://www.google.com/ig/api?weather=,,,49350177,9127522" target="_blank">Google Weather</li>
+		    	<li><a href="http://uhaapi.com/" target="_blank">Unofficial Heavens-Above API (UHAAPI)</a></li>
+		    </ul>
+		    
+		    <span id="footer">
+			    <p>&copy; 2012 by ON09</p>
+		    </span>
+	    </div>
+    </div>
+    
+    <div id="map_canvas"></div>
+    
+  </body>
+</html>
